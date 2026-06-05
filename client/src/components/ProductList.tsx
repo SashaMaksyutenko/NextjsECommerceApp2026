@@ -5,7 +5,7 @@ import Link from "next/link";
 import Filter from "./Filter";
 
 // TEMPORARY
-const products: ProductsType = [
+export const products: ProductsType = [
   {
     id: 1,
     name: "Adidas CoreFit T-Shirt",
