@@ -25,11 +25,7 @@ const getOrders = async (): Promise<Payment[]> => {
       fullName: o.user?.username || "Unknown",
       userId: o.user?._id || "",
       email: o.user?.email || "",
-      status: o.status === "delivered"
-        ? "success"
-        : o.status === "cancelled"
-        ? "failed"
-        : (o.status as Payment["status"]),
+      status: o.status as Payment["status"],
     }));
   } catch {
     return [];
