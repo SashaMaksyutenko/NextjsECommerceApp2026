@@ -82,7 +82,7 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "shortDescription",
-    header: "Description,",
+    header: "Description",
   },
   {
     id: "actions",
