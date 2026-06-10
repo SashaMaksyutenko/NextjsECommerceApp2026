@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import connectDB from "./lib/db";
 import { errorHandler, notFound } from "./middleware/errorHandler";
@@ -15,6 +17,20 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(helmet());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { message: "Too many requests, please try again later" },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: "Too many login attempts, please try again later" },
+});
+
 app.use(cors({
   origin: [
     process.env.CLIENT_URL || "http://localhost:3001",
@@ -22,6 +38,7 @@ app.use(cors({
   ],
   credentials: true,
 }));
+app.use(limiter);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -29,7 +46,7 @@ app.get("/", (_req, res) => {
   res.json({ message: "API is running" });
 });
 
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
