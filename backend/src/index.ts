@@ -4,6 +4,9 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import connectDB from "./lib/db";
 import authRoutes from "./routes/auth.routes";
+import productRoutes from "./routes/product.routes";
+import categoryRoutes from "./routes/category.routes";
+import orderRoutes from "./routes/order.routes";
 
 dotenv.config();
 
@@ -25,6 +28,9 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/orders", orderRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
