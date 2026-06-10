@@ -9,9 +9,12 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 const ProductCard = ({ product }: { product: ProductType }) => {
+  const firstColor = product.colors[0] || "default";
+  const firstImage = product.images[firstColor] || Object.values(product.images)[0] || "/placeholder.png";
+
   const [productTypes, setProductTypes] = useState({
-    size: product.sizes[0],
-    color: product.colors[0],
+    size: product.sizes[0] || "",
+    color: firstColor,
   });
   const {addToCart}=useCartStore()
   const handleProductType = ({
@@ -41,7 +44,7 @@ const ProductCard = ({ product }: { product: ProductType }) => {
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-[2/3]">
           <Image
-            src={product.images[productTypes.color]}
+            src={product.images[productTypes.color] || firstImage}
             alt={product.name}
             fill
             className="object-cover hover:scale-105 transition-all duration-300"
@@ -54,44 +57,36 @@ const ProductCard = ({ product }: { product: ProductType }) => {
         <p className="text-sm text-gray-500">{product.shortDescription}</p>
         {/* PRODUCT TYPES */}
         <div className="flex items-center gap-4 text-xs">
-          {/* SIZES */}
-          <div className="flex flex-col gap-1">
-            <span className="text-gray-500">Size</span>
-            <select
-              name="size"
-              id="size"
-              className="ring ring-gray-300 rounded-md px-2 py-1"
-              onChange={(e) =>
-                handleProductType({ type: "size", value: e.target.value })
-              }
-            >
-              {product.sizes.map((size) => (
-                <option key={size} value={size}>
-                  {size.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* COLORS */}
-          <div className="flex flex-col gap-1">
-            <span className="text-gray-500">Color</span>
-            <div className="flex items-center gap-2">
-              {product.colors.map((color) => (
-                <div
-                  className={`cursor-pointer border-1 ${productTypes.color === color ? "border-gray-400" : "border-gray-200"} rounded-full p-[1.2px]`}
-                  key={color}
-                  onClick={() =>
-                    handleProductType({ type: "color", value: color })
-                  }
-                >
-                  <div
-                    className="w-[14px] h-[14px] rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
-                </div>
-              ))}
+          {product.sizes.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <span className="text-gray-500">Size</span>
+              <select
+                name="size"
+                className="ring ring-gray-300 rounded-md px-2 py-1"
+                onChange={(e) => handleProductType({ type: "size", value: e.target.value })}
+              >
+                {product.sizes.map((size) => (
+                  <option key={size} value={size}>{size.toUpperCase()}</option>
+                ))}
+              </select>
             </div>
-          </div>
+          )}
+          {product.colors.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <span className="text-gray-500">Color</span>
+              <div className="flex items-center gap-2">
+                {product.colors.map((color) => (
+                  <div
+                    className={`cursor-pointer border ${productTypes.color === color ? "border-gray-400" : "border-gray-200"} rounded-full p-[1.2px]`}
+                    key={color}
+                    onClick={() => handleProductType({ type: "color", value: color })}
+                  >
+                    <div className="w-[14px] h-[14px] rounded-full" style={{ backgroundColor: color }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         {/* PRICE AND ADD TO CART BUTTON */}
         <div className="flex items-center justify-between">
