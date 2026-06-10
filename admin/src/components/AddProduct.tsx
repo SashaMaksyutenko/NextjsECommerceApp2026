@@ -30,276 +30,287 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
 import { ScrollArea } from "./ui/scroll-area";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
-const categories = [
-  "T-shirts",
-  "Shoes",
-  "Accessories",
-  "Bags",
-  "Dresses",
-  "Jackets",
-  "Gloves",
+const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+const COLORS = [
+  "blue", "green", "red", "yellow", "purple",
+  "orange", "pink", "brown", "gray", "black", "white",
 ] as const;
 
-const colors = [
-  "blue",
-  "green",
-  "red",
-  "yellow",
-  "purple",
-  "orange",
-  "pink",
-  "brown",
-  "gray",
-  "black",
-  "white",
-] as const;
+const COLOR_BG: Record<string, string> = {
+  blue:   "bg-blue-500",
+  green:  "bg-green-500",
+  red:    "bg-red-500",
+  yellow: "bg-yellow-400",
+  purple: "bg-purple-500",
+  orange: "bg-orange-500",
+  pink:   "bg-pink-400",
+  brown:  "bg-amber-800",
+  gray:   "bg-gray-400",
+  black:  "bg-black",
+  white:  "bg-white border border-gray-300",
+};
 
-const sizes = [
-  "xs",
-  "s",
-  "m",
-  "l",
-  "xl",
-  "xxl",
-  "34",
-  "35",
-  "36",
-  "37",
-  "38",
-  "39",
-  "40",
-  "41",
-  "42",
-  "43",
-  "44",
-  "45",
-  "46",
-  "47",
-  "48",
+const SIZES = [
+  "xs", "s", "m", "l", "xl", "xxl",
+  "34", "35", "36", "37", "38", "39", "40",
+  "41", "42", "43", "44", "45", "46", "47", "48",
 ] as const;
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Product name is required!" }),
-  shortDescription: z
-    .string()
-    .min(1, { message: "Short description is required!" })
-    .max(60),
-  description: z.string().min(1, { message: "Description is required!" }),
-  price: z.number().min(1, { message: "Price is required!" }),
-  category: z.enum(categories),
-  sizes: z.array(z.enum(sizes)),
-  colors: z.array(z.enum(colors)),
-  images: z.record(z.enum(colors), z.string()),
+  name:        z.string().min(2, "Name must be at least 2 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  price:       z.coerce.number().min(0, "Price must be 0 or more"),
+  stock:       z.coerce.number().int().min(0, "Stock must be 0 or more"),
+  category:    z.string().min(1, "Category is required"),
+  sizes:       z.array(z.string()).optional(),
+  colors:      z.array(z.string()).optional(),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+type Category = { _id: string; name: string };
+
 const AddProduct = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    defaultValues: { sizes: [], colors: [] },
   });
+
+  const selectedColors = form.watch("colors") ?? [];
+
+  useEffect(() => {
+    fetch(`${BASE}/categories`)
+      .then((r) => r.json())
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
+
+  const onSubmit = async (values: FormValues) => {
+    setError(null);
+    setUploading(true);
+    try {
+      // Upload one image per selected color
+      const images: string[] = [];
+      for (const color of selectedColors) {
+        const file = fileRefs.current[color]?.files?.[0];
+        if (file) {
+          const fd = new FormData();
+          fd.append("image", file);
+          const up = await fetch(`${BASE}/upload`, {
+            method: "POST",
+            credentials: "include",
+            body: fd,
+          });
+          if (!up.ok) throw new Error(`Failed to upload image for color: ${color}`);
+          const { url } = await up.json();
+          images.push(url);
+        }
+      }
+
+      const res = await fetch(`${BASE}/products`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, images }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || "Failed to create product");
+      }
+
+      form.reset();
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <SheetContent>
-      <ScrollArea className="h-screen">
+      <ScrollArea className="h-screen pr-4">
         <SheetHeader>
           <SheetTitle className="mb-4">Add Product</SheetTitle>
           <SheetDescription asChild>
             <Form {...form}>
-              <form className="space-y-8">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {error && (
+                  <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded p-2">
+                    {error}
+                  </p>
+                )}
+
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the name of the product.
-                      </FormDescription>
+                      <FormControl><Input {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="shortDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Short Description</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the short description of the product.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the description of the product.
-                      </FormDescription>
+                      <FormControl><Textarea {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the price of the product.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price ($)</FormLabel>
+                        <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="stock"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Stock</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
                   name="category"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <FormControl>
-                        <Select>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((cat) => (
-                              <SelectItem key={cat} value={cat}>
-                                {cat}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormDescription>
-                        Enter the category of the product.
-                      </FormDescription>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat._id} value={cat._id}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="sizes"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Sizes</FormLabel>
+                      <FormDescription>Select available sizes.</FormDescription>
                       <FormControl>
-                        <div className="grid grid-cols-3 gap-4 my-2">
-                          {sizes.map((size) => (
-                            <div className="flex items-center gap-2" key={size}>
+                        <div className="grid grid-cols-4 gap-2 mt-1">
+                          {SIZES.map((size) => (
+                            <div key={size} className="flex items-center gap-1">
                               <Checkbox
-                                id="size"
                                 checked={field.value?.includes(size)}
                                 onCheckedChange={(checked) => {
-                                  const currentValues = field.value || [];
-                                  if (checked) {
-                                    field.onChange([...currentValues, size]);
-                                  } else {
-                                    field.onChange(
-                                      currentValues.filter((v) => v !== size)
-                                    );
-                                  }
+                                  const current = field.value ?? [];
+                                  field.onChange(
+                                    checked ? [...current, size] : current.filter((v) => v !== size)
+                                  );
                                 }}
                               />
-                              <label htmlFor="size" className="text-xs">
-                                {size}
-                              </label>
+                              <span className="text-xs">{size}</span>
                             </div>
                           ))}
                         </div>
                       </FormControl>
-                      <FormDescription>
-                        Select the available sizes for the product.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="colors"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Colors</FormLabel>
+                      <FormDescription>Select colors and upload an image for each.</FormDescription>
                       <FormControl>
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-3 gap-4 my-2">
-                            {colors.map((color) => (
-                              <div
-                                className="flex items-center gap-2"
-                                key={color}
-                              >
+                        <div className="space-y-3 mt-1">
+                          <div className="grid grid-cols-3 gap-2">
+                            {COLORS.map((color) => (
+                              <div key={color} className="flex items-center gap-1">
                                 <Checkbox
-                                  id="color"
                                   checked={field.value?.includes(color)}
                                   onCheckedChange={(checked) => {
-                                    const currentValues = field.value || [];
-                                    if (checked) {
-                                      field.onChange([...currentValues, color]);
-                                    } else {
-                                      field.onChange(
-                                        currentValues.filter((v) => v !== color)
-                                      );
-                                    }
+                                    const current = field.value ?? [];
+                                    field.onChange(
+                                      checked ? [...current, color] : current.filter((v) => v !== color)
+                                    );
                                   }}
                                 />
-                                <label
-                                  htmlFor="color"
-                                  className="text-xs flex items-center gap-2"
-                                >
-                                  <div
-                                    className="w-2 h-2 rounded-full"
-                                    style={{ backgroundColor: color }}
-                                  />
+                                <span className="text-xs flex items-center gap-1">
+                                  <span className={`w-3 h-3 rounded-full inline-block ${COLOR_BG[color] ?? "bg-gray-400"}`} />
                                   {color}
-                                </label>
+                                </span>
                               </div>
                             ))}
                           </div>
-                          {field.value && field.value.length > 0 && (
-                            <div className="mt-8 space-y-4">
-                              <p className="text-sm font-medium">Upload images for selected colors:</p>
-                              {field.value.map((color) => (
-                                <div className="flex items-center gap-2" key={color}>
-                                  <div
-                                    className="w-2 h-2 rounded-full"
-                                    style={{ backgroundColor: color }}
+
+                          {selectedColors.length > 0 && (
+                            <div className="space-y-2 border-t pt-3">
+                              <p className="text-xs font-medium text-muted-foreground">Images per color:</p>
+                              {selectedColors.map((color) => (
+                                <div key={color} className="flex items-center gap-2">
+                                  <span className={`w-3 h-3 rounded-full flex-shrink-0 ${COLOR_BG[color] ?? "bg-gray-400"}`} />
+                                  <span className="text-xs min-w-15">{color}</span>
+                                  <Input
+                                    type="file"
+                                    accept="image/*"
+                                    className="text-xs h-8"
+                                    ref={(el) => { fileRefs.current[color] = el; }}
                                   />
-                                  <span className="text-sm min-w-[60px]">{color}</span>
-                                  <Input type="file" accept="image/*" />
                                 </div>
                               ))}
                             </div>
                           )}
                         </div>
                       </FormControl>
-                      <FormDescription>
-                        Select the available colors for the product.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Submit</Button>
+
+                <Button type="submit" className="w-full" disabled={uploading}>
+                  {uploading ? "Saving..." : "Add Product"}
+                </Button>
               </form>
             </Form>
           </SheetDescription>
