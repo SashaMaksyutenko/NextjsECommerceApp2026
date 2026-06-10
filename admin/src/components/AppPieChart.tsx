@@ -7,44 +7,47 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "./ui/chart"
-import { TrendingUp } from "lucide-react"
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
-    color: "var(--chart-1)",
-  },
-  safari: {
-    label: "Safari",
-    color: "var(--chart-2)",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "var(--chart-3)",
-  },
-  edge: {
-    label: "Edge",
-    color: "var(--chart-4)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-]
-const AppPieChart = () => {
-  const totalVisitors = chartData.reduce((acc, curr) => acc + curr.visitors, 0)
+
+const STATUS_COLORS: Record<string, string> = {
+  pending: "var(--chart-1)",
+  processing: "var(--chart-2)",
+  shipped: "var(--chart-3)",
+  delivered: "var(--chart-4)",
+  cancelled: "var(--chart-5)",
+}
+
+const STATUS_DOT_CLASS: Record<string, string> = {
+  pending: "bg-yellow-400",
+  processing: "bg-blue-400",
+  shipped: "bg-purple-400",
+  delivered: "bg-green-400",
+  cancelled: "bg-red-400",
+}
+
+type OrderStatus = { status: string; count: number }
+
+const AppPieChart = ({ data }: { data?: OrderStatus[] }) => {
+  const chartData = (data && data.length > 0 ? data : []).map((d) => ({
+    status: d.status,
+    count: d.count,
+    fill: STATUS_COLORS[d.status] || "var(--chart-1)",
+  }))
+
+  const chartConfig: ChartConfig = {
+    count: { label: "Orders" },
+    ...Object.fromEntries(
+      Object.entries(STATUS_COLORS).map(([k, color]) => [
+        k,
+        { label: k.charAt(0).toUpperCase() + k.slice(1), color },
+      ])
+    ),
+  }
+
+  const totalOrders = chartData.reduce((acc, curr) => acc + curr.count, 0)
+
   return (
     <div className="">
-      <h1 className="mb-6 text-lg font-medium">Browser Usage</h1>
+      <h1 className="mb-6 text-lg font-medium">Orders by Status</h1>
       <ChartContainer
         config={chartConfig}
         className="mx-auto aspect-square max-h-[250px]"
@@ -56,8 +59,8 @@ const AppPieChart = () => {
           />
           <Pie
             data={chartData}
-            dataKey="visitors"
-            nameKey="browser"
+            dataKey="count"
+            nameKey="status"
             innerRadius={60}
             strokeWidth={5}
           >
@@ -76,14 +79,14 @@ const AppPieChart = () => {
                         y={viewBox.cy}
                         className="fill-foreground text-3xl font-bold"
                       >
-                        {totalVisitors.toLocaleString()}
+                        {totalOrders.toLocaleString()}
                       </tspan>
                       <tspan
                         x={viewBox.cx}
                         y={(viewBox.cy || 0) + 24}
                         className="fill-muted-foreground"
                       >
-                        Visitors
+                        Orders
                       </tspan>
                     </text>
                   )
@@ -94,12 +97,13 @@ const AppPieChart = () => {
         </PieChart>
       </ChartContainer>
       <div className="mt-4 flex flex-col gap-2 items-center">
-        <div className="flex items-center gap-2 leading-none font-medium">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4 text-green-500" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
+        {chartData.map((d) => (
+          <div key={d.status} className="flex items-center gap-2 text-sm">
+            <span className={`w-3 h-3 rounded-full ${STATUS_DOT_CLASS[d.status] ?? "bg-gray-400"}`} />
+            <span className="capitalize">{d.status}</span>
+            <span className="text-muted-foreground">({d.count})</span>
+          </div>
+        ))}
       </div>
     </div>
   )

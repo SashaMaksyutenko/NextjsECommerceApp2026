@@ -19,15 +19,13 @@ const chartConfig = {
     color: "var(--chart-4)",
   },
 } satisfies ChartConfig
-const chartData = [
-  { month: "January", total: 186, successful: 80 },
-  { month: "February", total: 305, successful: 200 },
-  { month: "March", total: 237, successful: 120 },
-  { month: "April", total: 173, successful: 100 },
-  { month: "May", total: 209, successful: 130 },
-  { month: "June", total: 214, successful: 140 },
-]
-const AppBarChart = () => {
+
+type MonthlyRevenue = { month: string; total: number; successful: number }
+
+const AppBarChart = ({ data }: { data?: MonthlyRevenue[] }) => {
+  const chartData = data && data.length > 0 ? data : [
+    { month: "Jan", total: 0, successful: 0 },
+  ]
   return (
     <div>
       <h1 className="mb-6 text-lg font-medium">Total Revenue</h1>
@@ -39,7 +37,6 @@ const AppBarChart = () => {
             tickLine={false}
             tickMargin={10}
             axisLine={false}
-            tickFormatter={(value) => value.slice(0, 3)}
           />
           <YAxis tickLine={false} tickMargin={10} axisLine={false} />
           <ChartTooltip content={<ChartTooltipContent />} />
