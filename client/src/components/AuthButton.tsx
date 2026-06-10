@@ -30,6 +30,9 @@ export default function AuthButton() {
     return (
       <div className="flex items-center gap-3 text-sm">
         <span className="text-gray-600">Hi, {user.username}</span>
+        <Link href="/orders" className="underline text-gray-500 hover:text-black">
+          My Orders
+        </Link>
         <button onClick={handleLogout} className="underline text-gray-500 hover:text-black">
           Sign Out
         </button>
