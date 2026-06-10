@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import connectDB from "./lib/db";
+import { errorHandler, notFound } from "./middleware/errorHandler";
 import authRoutes from "./routes/auth.routes";
 import productRoutes from "./routes/product.routes";
 import categoryRoutes from "./routes/category.routes";
@@ -33,6 +34,9 @@ app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
