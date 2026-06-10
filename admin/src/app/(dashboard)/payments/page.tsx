@@ -14,7 +14,8 @@ const getOrders = async (): Promise<Payment[]> => {
     );
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.orders || []).map((o: {
+    const orders = Array.isArray(data) ? data : (data.orders ?? []);
+    return orders.map((o: {
       _id: string;
       user?: { _id: string; username: string; email: string };
       totalPrice: number;

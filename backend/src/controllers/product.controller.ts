@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
 import Product from "../models/Product";
+import Category from "../models/Category";
 
 export const getProducts = async (req: Request, res: Response): Promise<void> => {
-  const { category, search, page = 1, limit = 12, sort } = req.query;
-  const filter: Record<string, unknown> = { isActive: true };
+  const { category, search, page = 1, limit = 12, sort, admin } = req.query;
+  const filter: Record<string, unknown> = admin === "true" ? {} : { isActive: true };
 
-  if (category) filter.category = category;
+  if (category && category !== "all") {
+    const cat = await Category.findOne({ slug: String(category) });
+    if (cat) filter.category = cat._id;
+    else filter.category = null; // no match → return empty
+  }
   if (search) filter.name = { $regex: search, $options: "i" };
 
   const sortMap: Record<string, Record<string, 1 | -1>> = {

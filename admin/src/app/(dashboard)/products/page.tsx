@@ -6,7 +6,7 @@ const getProducts = async (): Promise<Product[]> => {
   try {
     const cookieStore = await cookies();
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/products?limit=50`,
+      `${process.env.NEXT_PUBLIC_API_URL}/products/admin?limit=50`,
       {
         headers: { Cookie: cookieStore.toString() },
         cache: "no-store",

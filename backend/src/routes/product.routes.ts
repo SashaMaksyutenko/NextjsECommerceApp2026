@@ -7,6 +7,7 @@ import { productSchema } from "../validation/product.schema";
 const router = Router();
 
 router.get("/", getProducts);
+router.get("/admin", protect, adminOnly, (req, res) => { req.query.admin = "true"; getProducts(req, res); });
 router.get("/:id", getProduct);
 router.post("/", protect, adminOnly, validate(productSchema), createProduct);
 router.put("/:id", protect, adminOnly, validate(productSchema.partial()), updateProduct);
