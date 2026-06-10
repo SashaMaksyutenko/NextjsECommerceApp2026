@@ -26,7 +26,7 @@ export const protect = async (
     req.user = decoded;
     next();
   } catch {
-    res.status(401).json({ message: "Token invalid" });
+    res.status(401).json({ message: "Token expired or invalid" });
   }
 };
 

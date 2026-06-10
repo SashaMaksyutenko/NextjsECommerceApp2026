@@ -2,14 +2,34 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 
-const generateToken = (id: string, role: string) =>
-  jwt.sign({ id, role }, process.env.JWT_SECRET as string, { expiresIn: "7d" });
+const generateAccessToken = (id: string, role: string) =>
+  jwt.sign({ id, role }, process.env.JWT_SECRET as string, { expiresIn: "15m" });
 
-const cookieOptions = {
+const generateRefreshToken = (id: string) =>
+  jwt.sign({ id }, process.env.JWT_REFRESH_SECRET as string, { expiresIn: "7d" });
+
+const accessCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict" as const,
+  maxAge: 15 * 60 * 1000,
+};
+
+const refreshCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "strict" as const,
   maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+const sendTokens = async (res: Response, userId: string, role: string) => {
+  const accessToken  = generateAccessToken(userId, role);
+  const refreshToken = generateRefreshToken(userId);
+
+  await User.findByIdAndUpdate(userId, { refreshToken });
+
+  res.cookie("token", accessToken, accessCookieOptions);
+  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -22,9 +42,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 
   const user = await User.create({ username, email, password });
-  const token = generateToken(String(user._id), user.role);
+  await sendTokens(res, String(user._id), user.role);
 
-  res.cookie("token", token, cookieOptions);
   res.status(201).json({
     id: user._id,
     username: user.username,
@@ -47,8 +66,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const token = generateToken(String(user._id), user.role);
-  res.cookie("token", token, cookieOptions);
+  await sendTokens(res, String(user._id), user.role);
+
   res.json({
     id: user._id,
     username: user.username,
@@ -57,13 +76,49 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   });
 };
 
-export const logout = (_req: Request, res: Response): void => {
+export const refresh = async (req: Request, res: Response): Promise<void> => {
+  const token = req.cookies?.refreshToken;
+
+  if (!token) {
+    res.status(401).json({ message: "No refresh token" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET as string) as { id: string };
+
+    const user = await User.findById(decoded.id);
+    if (!user || user.refreshToken !== token) {
+      res.status(401).json({ message: "Invalid refresh token" });
+      return;
+    }
+
+    if (!user.isActive) {
+      res.status(403).json({ message: "Account is disabled" });
+      return;
+    }
+
+    await sendTokens(res, String(user._id), user.role);
+    res.json({ message: "Token refreshed" });
+  } catch {
+    res.status(401).json({ message: "Refresh token expired" });
+  }
+};
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  const token = req.cookies?.refreshToken;
+
+  if (token) {
+    await User.findOneAndUpdate({ refreshToken: token }, { refreshToken: undefined });
+  }
+
   res.clearCookie("token");
+  res.clearCookie("refreshToken");
   res.json({ message: "Logged out" });
 };
 
 export const getMe = async (req: Request & { user?: { id: string } }, res: Response): Promise<void> => {
-  const user = await User.findById(req.user?.id).select("-password");
+  const user = await User.findById(req.user?.id).select("-password -refreshToken");
   if (!user) {
     res.status(404).json({ message: "User not found" });
     return;
