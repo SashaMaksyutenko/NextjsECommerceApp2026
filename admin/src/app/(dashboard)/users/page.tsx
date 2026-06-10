@@ -22,10 +22,10 @@ const getUsers = async (): Promise<User[]> => {
       avatar?: string;
     }) => ({
       id: u._id,
-      avatar: u.avatar || "/users/default.png",
+      avatar: u.avatar || "",
       fullName: u.username,
       email: u.email,
-      status: u.isActive ? "active" : "inactive",
+      isActive: u.isActive,
     }));
   } catch {
     return [];

@@ -39,6 +39,7 @@ export const getAnalytics = async (_req: Request, res: Response): Promise<void> 
     month: months[m._id - 1],
     total: Math.round(m.total),
     successful: Math.round(m.successful),
+    count: m.count,
   }));
 
   const totalRevenue = await Order.aggregate([
