@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import morgan from "morgan";
 import dotenv from "dotenv";
 import connectDB from "./lib/db";
 import { errorHandler, notFound } from "./middleware/errorHandler";
@@ -39,6 +40,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(limiter);
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(express.json());
 app.use(cookieParser());
 
