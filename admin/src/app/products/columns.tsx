@@ -16,14 +16,14 @@ import Image from "next/image"
 import Link from "next/link"
 
 export type Product = {
-  id: string | number
-  price: number
+  id: string
   name: string
-  shortDescription: string
   description: string
-  sizes: string[]
-  colors: string[]
-  images: Record<string, string>
+  price: number
+  stock: number
+  images: string[]
+  category: string
+  isActive: boolean
 }
 
 export const columns: ColumnDef<Product>[] = [
@@ -50,15 +50,13 @@ export const columns: ColumnDef<Product>[] = [
     header: "Image",
     cell: ({ row }) => {
       const product = row.original
-      return (
+      const src = product.images?.[0]
+      return src ? (
         <div className="relative h-9 w-9">
-          <Image
-            src={product.images[product.colors[0]]}
-            alt={product.name}
-            fill
-            className="rounded-full object-cover"
-          />
+          <Image src={src} alt={product.name} fill className="rounded-full object-cover" />
         </div>
+      ) : (
+        <div className="h-9 w-9 rounded-full bg-secondary" />
       )
     },
   },
@@ -68,27 +66,34 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "price",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Price
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Price
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => `$${row.getValue<number>("price").toFixed(2)}`,
   },
   {
-    accessorKey: "shortDescription",
-    header: "Description",
+    accessorKey: "stock",
+    header: "Stock",
+  },
+  {
+    accessorKey: "isActive",
+    header: "Status",
+    cell: ({ row }) => (
+      <span className={`rounded-md px-2 py-1 text-xs ${row.getValue("isActive") ? "bg-green-500/40" : "bg-red-500/40"}`}>
+        {row.getValue("isActive") ? "active" : "inactive"}
+      </span>
+    ),
   },
   {
     id: "actions",
     cell: ({ row }) => {
       const product = row.original
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -99,14 +104,12 @@ export const columns: ColumnDef<Product>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(product.id.toString())}
-            >
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(product.id)}>
               Copy product ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={`/products/${product.id}`}>View customer</Link>
+              <Link href={`/products/${product.id}`}>View product</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
