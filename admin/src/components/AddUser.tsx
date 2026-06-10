@@ -1,67 +1,70 @@
 "use client";
 
-import {
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const formSchema = z.object({
-  fullName: z
-    .string()
-    .min(2, { message: "Full name must be at least 2 characters!" })
-    .max(50),
-  email: z.string().email({ message: "Invalid email address!" }),
-  phone: z.string().min(10).max(15),
-  address: z.string().min(2),
-  city: z.string().min(2),
+  username: z.string().min(2, "Username must be at least 2 characters"),
+  email:    z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role:     z.enum(["user", "admin"]),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 const AddUser = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    defaultValues: { username: "", email: "", password: "", role: "user" },
   });
+
+  const onSubmit = async (values: FormValues) => {
+    setError(null);
+    const res = await fetch(`${BASE}/users`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setError(body.message || "Failed to create user");
+      return;
+    }
+    form.reset();
+    router.refresh();
+  };
+
   return (
     <SheetContent>
       <SheetHeader>
         <SheetTitle className="mb-4">Add User</SheetTitle>
         <SheetDescription asChild>
           <Form {...form}>
-            <form className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {error && (
+                <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded p-2">{error}</p>
+              )}
               <FormField
                 control={form.control}
-                name="fullName"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Enter user full name.
-                    </FormDescription>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl><Input {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -72,65 +75,46 @@ const AddUser = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Only admin can see your email.
-                    </FormDescription>
+                    <FormControl><Input type="email" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="phone"
+                name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Only admin can see your phone number (optional)
-                    </FormDescription>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl><Input type="password" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="address"
+                name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Enter user address (optional)
-                    </FormDescription>
+                    <FormLabel>Role</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Enter user city (optional)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">Submit</Button>
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Creating..." : "Create User"}
+              </Button>
             </form>
           </Form>
         </SheetDescription>

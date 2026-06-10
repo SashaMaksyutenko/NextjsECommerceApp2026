@@ -1,6 +1,14 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 
+export const createUser = async (req: Request, res: Response): Promise<void> => {
+  const { username, email, password, role } = req.body;
+  const exists = await User.findOne({ email });
+  if (exists) { res.status(400).json({ message: "Email already in use" }); return; }
+  const user = await User.create({ username, email, password, role: role || "user" });
+  res.status(201).json({ id: user._id, username: user.username, email: user.email, role: user.role });
+};
+
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   const { search, role, page = 1, limit = 20 } = req.query;
   const filter: Record<string, unknown> = {};
