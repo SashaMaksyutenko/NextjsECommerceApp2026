@@ -38,10 +38,11 @@ const mapProduct = (p: {
   };
 };
 
-const getProducts = async (category?: string): Promise<ProductType[]> => {
+const getProducts = async (category?: string, sort?: string): Promise<ProductType[]> => {
   try {
     const params = new URLSearchParams({ limit: "20" });
     if (category) params.set("category", category);
+    if (sort) params.set("sort", sort);
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/products?${params}`,
       { cache: "no-store" }
@@ -56,12 +57,14 @@ const getProducts = async (category?: string): Promise<ProductType[]> => {
 
 const ProductList = async ({
   category,
+  sort,
   params,
 }: {
   category?: string;
+  sort?: string;
   params: "homepage" | "products";
 }) => {
-  const products = await getProducts(category);
+  const products = await getProducts(category, sort);
 
   return (
     <div className="w-full">
