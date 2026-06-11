@@ -19,6 +19,7 @@ export interface IOrder extends Document {
     country: string;
     zip: string;
   };
+  stripePaymentIntentId?: string;
 }
 
 const OrderSchema = new Schema<IOrder>(
@@ -39,6 +40,7 @@ const OrderSchema = new Schema<IOrder>(
       country: { type: String, required: true },
       zip:     { type: String, required: true },
     },
+    stripePaymentIntentId: { type: String },
   },
   { timestamps: true }
 );

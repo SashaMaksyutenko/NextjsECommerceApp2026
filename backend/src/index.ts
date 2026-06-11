@@ -14,13 +14,16 @@ import orderRoutes from "./routes/order.routes";
 import userRoutes from "./routes/user.routes";
 import uploadRoutes from "./routes/upload.routes";
 import analyticsRoutes from "./routes/analytics.routes";
+import paymentRoutes from "./routes/payment.routes";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -35,10 +38,7 @@ const authLimiter = rateLimit({
 });
 
 app.use(cors({
-  origin: [
-    process.env.CLIENT_URL || "http://localhost:3001",
-    process.env.ADMIN_URL  || "http://localhost:3000",
-  ],
+  origin: true,
   credentials: true,
 }));
 app.use(limiter);
@@ -57,6 +57,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

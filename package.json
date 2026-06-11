@@ -1,0 +1,10 @@
+{
+  "name": "nextjs-ecommerce-2026",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,admin,client -c blue.bold,green.bold,yellow.bold \"npm --prefix backend run dev\" \"npm --prefix admin run dev\" \"npm --prefix client run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import PaymentSuccessBanner from "@/components/PaymentSuccessBanner";
+import { Suspense } from "react";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -48,6 +50,7 @@ export default async function MyOrdersPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
+      <Suspense><PaymentSuccessBanner /></Suspense>
       <h1 className="text-2xl font-semibold mb-6">My Orders</h1>
 
       {orders.length === 0 ? (
