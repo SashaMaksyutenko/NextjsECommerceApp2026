@@ -43,8 +43,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) { setError(data.message || "Something went wrong"); return; }
       sessionStorage.setItem("just-logged-in", "1");
-      router.push("/");
-      router.refresh();
+      window.location.href = "/";
     } catch {
       setError("Something went wrong. Try again.");
     } finally {

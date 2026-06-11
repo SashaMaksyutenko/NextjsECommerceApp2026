@@ -5,27 +5,28 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { ChevronDown, Heart, LayoutDashboard, LogOut, ShoppingBag, UserRound } from "lucide-react";
-
-type UserData = { id: string; username: string; email: string; role: string };
+import useUserStore from "@/stores/userStore";
+import useWishlistStore from "@/stores/wishlistStore";
+import useCartStore from "@/stores/cartStore";
 
 export default function AuthButton() {
-  const [user, setUser] = useState<UserData | null>(null);
+  const { user, fetch: fetchUser, clear: clearUser } = useUserStore();
+  const { clear: clearWishlist } = useWishlistStore();
+  const { clearCart } = useCartStore();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        setUser(data);
-        if (data && sessionStorage.getItem("just-logged-in")) {
-          toast.success(`Welcome, ${data.username}!`, { autoClose: 3000 });
-          sessionStorage.removeItem("just-logged-in");
-        }
-      })
-      .catch(() => setUser(null));
-  }, []);
+    fetchUser();
+  }, [fetchUser]);
+
+  useEffect(() => {
+    if (user && sessionStorage.getItem("just-logged-in")) {
+      toast.success(`Welcome, ${user.username}!`, { autoClose: 3000 });
+      sessionStorage.removeItem("just-logged-in");
+    }
+  }, [user]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -40,7 +41,9 @@ export default function AuthButton() {
       method: "POST",
       credentials: "include",
     });
-    setUser(null);
+    clearUser();
+    clearWishlist();
+    clearCart();
     setOpen(false);
     toast.info("Signed out successfully");
     router.refresh();
@@ -73,7 +76,6 @@ export default function AuthButton() {
 
       {open && (
         <div className="absolute right-0 top-11 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden">
-          {/* header */}
           <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
             <p className="text-sm font-semibold text-gray-800 truncate">{user.username}</p>
             <p className="text-xs text-gray-400 truncate">{user.email}</p>
@@ -84,7 +86,6 @@ export default function AuthButton() {
             )}
           </div>
 
-          {/* items */}
           <div className="py-1.5">
             <Link
               href="/profile"
