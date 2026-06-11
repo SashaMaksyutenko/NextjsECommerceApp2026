@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import WishlistButton from "./WishlistButton";
 
 const ProductCard = ({ product }: { product: ProductType }) => {
   const firstColor = product.colors[0] || "default";
@@ -41,16 +42,17 @@ const ProductCard = ({ product }: { product: ProductType }) => {
   return (
     <div className="shadow-lg rounded-lg overflow-hidden">
       {/* IMAGE */}
-      <Link href={`/products/${product.id}`}>
-        <div className="relative aspect-[2/3]">
+      <div className="relative aspect-[2/3]">
+        <Link href={`/products/${product.id}`}>
           <Image
             src={product.images[productTypes.color] || firstImage}
             alt={product.name}
             fill
             className="object-cover hover:scale-105 transition-all duration-300"
           />
-        </div>
-      </Link>
+        </Link>
+        <WishlistButton productId={String(product.id)} />
+      </div>
       {/* PRODUCT DETAIL */}
       <div className="flex flex-col gap-4 p-4">
         <h1 className="font-medium">{product.name}</h1>

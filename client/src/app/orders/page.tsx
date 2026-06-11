@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import PaymentSuccessBanner from "@/components/PaymentSuccessBanner";
 import { Suspense } from "react";
+import CancelOrderButton from "@/components/CancelOrderButton";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -44,9 +45,7 @@ const STATUS_CLASSES: Record<string, string> = {
 export default async function MyOrdersPage() {
   const orders = await getMyOrders();
 
-  if (orders === null) {
-    redirect("/login");
-  }
+  if (orders === null) redirect("/login");
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -67,9 +66,7 @@ export default async function MyOrdersPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm text-gray-500">
                   {new Date(order.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
+                    year: "numeric", month: "long", day: "numeric",
                   })}
                 </div>
                 <span
@@ -110,7 +107,12 @@ export default async function MyOrdersPage() {
                 <span className="text-gray-500">
                   {order.shippingAddress.city}, {order.shippingAddress.country}
                 </span>
-                <span className="font-semibold">${order.totalPrice.toFixed(2)}</span>
+                <div className="flex items-center gap-4">
+                  <span className="font-semibold">${order.totalPrice.toFixed(2)}</span>
+                  {["pending", "processing"].includes(order.status) && (
+                    <CancelOrderButton orderId={order._id} />
+                  )}
+                </div>
               </div>
             </div>
           ))}

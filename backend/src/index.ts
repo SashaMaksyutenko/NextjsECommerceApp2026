@@ -15,6 +15,7 @@ import userRoutes from "./routes/user.routes";
 import uploadRoutes from "./routes/upload.routes";
 import analyticsRoutes from "./routes/analytics.routes";
 import paymentRoutes from "./routes/payment.routes";
+import wishlistRoutes from "./routes/wishlist.routes";
 
 dotenv.config();
 
@@ -53,6 +54,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

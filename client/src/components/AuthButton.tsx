@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { ChevronDown, LayoutDashboard, LogOut, ShoppingBag, UserRound } from "lucide-react";
+import { ChevronDown, Heart, LayoutDashboard, LogOut, ShoppingBag, UserRound } from "lucide-react";
 
 type UserData = { id: string; username: string; email: string; role: string };
 
@@ -101,6 +101,14 @@ export default function AuthButton() {
             >
               <ShoppingBag className="w-4 h-4 shrink-0" />
               My Orders
+            </Link>
+            <Link
+              href="/wishlist"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            >
+              <Heart className="w-4 h-4 shrink-0" />
+              My Wishlist
             </Link>
 
             {user.role === "admin" && (

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
-import { Home } from "lucide-react";
+import { Heart, Home } from "lucide-react";
 import ShoppingCartIcon from "./ShoppingCartIcon";
 import AuthButton from "./AuthButton";
 import ThemeToggle from "./ThemeToggle";
@@ -30,6 +30,9 @@ const Navbar = () => {
           <Home className="w-4 h-4 text-gray-600" />
         </Link>
         <ThemeToggle />
+        <Link href="/wishlist">
+          <Heart className="w-4 h-4 text-gray-600" />
+        </Link>
         <ShoppingCartIcon />
         <AuthButton />
       </div>

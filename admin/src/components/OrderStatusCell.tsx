@@ -56,6 +56,9 @@ export function OrderStatusCell({
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
+          <Link href={`/payments/${orderId}`}>View order details</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link href={`/users/${userId}`}>View customer</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

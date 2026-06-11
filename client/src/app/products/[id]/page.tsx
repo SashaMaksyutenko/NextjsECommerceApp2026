@@ -1,4 +1,5 @@
 import ProductInteraction from "@/components/ProductInteraction";
+import ReviewSection from "@/components/ReviewSection";
 import { ProductType } from "@/types";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -58,6 +59,7 @@ const ProductPage = async ({
   const imageSrc = product.images[selectedColor] || Object.values(product.images)[0] || "/placeholder.png";
 
   return (
+    <>
     <div className="flex flex-col gap-4 lg:flex-row md:gap-12 mt-12">
       {/* IMAGE */}
       <div className="w-full lg:w-5/12 relative aspect-[2/3]">
@@ -95,6 +97,8 @@ const ProductPage = async ({
         </p>
       </div>
     </div>
+    <ReviewSection productId={id} />
+    </>
   );
 };
 

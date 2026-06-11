@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getProducts, getProduct, createProduct, updateProduct, deleteProduct } from "../controllers/product.controller";
+import { getReviews, addReview, deleteReview } from "../controllers/review.controller";
 import { protect, adminOnly } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { productSchema } from "../validation/product.schema";
@@ -12,5 +13,9 @@ router.get("/:id", getProduct);
 router.post("/", protect, adminOnly, validate(productSchema), createProduct);
 router.put("/:id", protect, adminOnly, validate(productSchema.partial()), updateProduct);
 router.delete("/:id", protect, adminOnly, deleteProduct);
+
+router.get("/:id/reviews", getReviews);
+router.post("/:id/reviews", protect, addReview);
+router.delete("/:id/reviews/:reviewId", protect, deleteReview);
 
 export default router;

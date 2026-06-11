@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Order from "../models/Order";
+import Product from "../models/Product";
 import { AuthRequest } from "../middleware/auth";
 
 export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -31,6 +32,14 @@ export const getAllOrders = async (req: Request, res: Response): Promise<void> =
   res.json(orders);
 };
 
+export const getOrderById = async (req: Request, res: Response): Promise<void> => {
+  const order = await Order.findById(req.params.id)
+    .populate("user", "username email")
+    .populate("items.product", "name images price");
+  if (!order) { res.status(404).json({ message: "Order not found" }); return; }
+  res.json(order);
+};
+
 export const updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
   const order = await Order.findByIdAndUpdate(
     req.params.id,
@@ -38,5 +47,22 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
     { new: true }
   );
   if (!order) { res.status(404).json({ message: "Order not found" }); return; }
+  res.json(order);
+};
+
+export const cancelOrder = async (req: AuthRequest, res: Response): Promise<void> => {
+  const order = await Order.findOne({ _id: req.params.id, user: req.user?.id });
+  if (!order) { res.status(404).json({ message: "Order not found" }); return; }
+  if (!["pending", "processing"].includes(order.status)) {
+    res.status(400).json({ message: "Cannot cancel order at this stage" });
+    return;
+  }
+  await Promise.all(
+    order.items.map((item) =>
+      Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } })
+    )
+  );
+  order.status = "cancelled";
+  await order.save();
   res.json(order);
 };

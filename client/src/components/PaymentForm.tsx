@@ -8,7 +8,7 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useRef, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 import useCartStore from "@/stores/cartStore";
@@ -69,9 +69,11 @@ const PaymentForm = ({ shippingForm }: { shippingForm: ShippingFormInputs }) => 
   const router = useRouter();
   const [clientSecret, setClientSecret] = useState("");
   const [initError, setInitError] = useState("");
+  const initialized = useRef(false);
 
   useEffect(() => {
-    if (cart.length === 0) return;
+    if (initialized.current || cart.length === 0) return;
+    initialized.current = true;
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shippingFee = subtotal >= 100 ? 0 : 9.99;
