@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import DeleteCategoryCell from "@/components/DeleteCategoryCell";
+import EditCategoryCell from "@/components/EditCategoryCell";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import AddCategory from "@/components/AddCategory";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,7 @@ export default async function CategoriesPage() {
               <th className="px-4 py-3 font-medium">Name</th>
               <th className="px-4 py-3 font-medium">Slug</th>
               <th className="px-4 py-3 font-medium">Description</th>
-              <th className="px-4 py-3 font-medium w-16" />
+              <th className="px-4 py-3 font-medium w-24" />
             </tr>
           </thead>
           <tbody>
@@ -69,7 +70,13 @@ export default async function CategoriesPage() {
                   <td className="px-4 py-3 text-muted-foreground">{cat.slug}</td>
                   <td className="px-4 py-3 text-muted-foreground">{cat.description ?? "—"}</td>
                   <td className="px-4 py-3">
-                    <DeleteCategoryCell categoryId={cat._id} />
+                    <div className="flex items-center gap-1">
+                      <EditCategoryCell
+                        categoryId={cat._id}
+                        defaultValues={{ name: cat.name, slug: cat.slug, description: cat.description }}
+                      />
+                      <DeleteCategoryCell categoryId={cat._id} />
+                    </div>
                   </td>
                 </tr>
               ))

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
-import { Bell, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import ShoppingCartIcon from "./ShoppingCartIcon";
 import AuthButton from "./AuthButton";
 import { Suspense } from "react";
@@ -28,7 +28,6 @@ const Navbar = () => {
         <Link href={"/"}>
           <Home className="w-4 h-4 text-gray-600" />
         </Link>
-        <Bell className="w-4 h-4 text-gray-600" />
         <ShoppingCartIcon />
         <AuthButton />
       </div>
