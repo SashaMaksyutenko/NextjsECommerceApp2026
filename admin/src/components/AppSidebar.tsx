@@ -19,7 +19,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
@@ -39,7 +38,6 @@ import {
 } from "./ui/dropdown-menu";
 import { Sheet, SheetTrigger } from "./ui/sheet";
 import AddUser from "./AddUser";
-import AddCategory from "./AddCategory";
 import AddProduct from "./AddProduct";
 import { useRouter } from "next/navigation";
 
@@ -102,9 +100,6 @@ const AppSidebar = ({ username }: { username?: string }) => {
 
         <SidebarGroup>
           <SidebarGroupLabel>Products</SidebarGroupLabel>
-          <SidebarGroupAction>
-            <Plus /> <span className="sr-only">Add Product</span>
-          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -116,27 +111,21 @@ const AppSidebar = ({ username }: { username?: string }) => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link href="#"><Plus />Add Product</Link>
-                      </SidebarMenuButton>
-                    </SheetTrigger>
-                    <AddProduct />
-                  </Sheet>
-                </SidebarMenuButton>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <SidebarMenuButton>
+                      <Plus />Add Product
+                    </SidebarMenuButton>
+                  </SheetTrigger>
+                  <AddProduct />
+                </Sheet>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link href="#"><Plus />Add Category</Link>
-                      </SidebarMenuButton>
-                    </SheetTrigger>
-                    <AddCategory />
-                  </Sheet>
+                  <Link href="/categories">
+                    <ShoppingBasket />
+                    Categories
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -145,9 +134,6 @@ const AppSidebar = ({ username }: { username?: string }) => {
 
         <SidebarGroup>
           <SidebarGroupLabel>Users</SidebarGroupLabel>
-          <SidebarGroupAction>
-            <Plus /> <span className="sr-only">Add User</span>
-          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -159,16 +145,14 @@ const AppSidebar = ({ username }: { username?: string }) => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link href="#"><Plus />Add User</Link>
-                      </SidebarMenuButton>
-                    </SheetTrigger>
-                    <AddUser />
-                  </Sheet>
-                </SidebarMenuButton>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <SidebarMenuButton>
+                      <Plus />Add User
+                    </SidebarMenuButton>
+                  </SheetTrigger>
+                  <AddUser />
+                </Sheet>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

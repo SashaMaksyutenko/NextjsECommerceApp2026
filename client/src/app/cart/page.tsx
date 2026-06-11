@@ -168,39 +168,30 @@ const CartPage = () => {
         <div className="w-full lg:w-5/12 shadow-lg border-1 border-gray-100 p-8 rounded-lg flex flex-col gap-8 h-max">
           <h2 className="font-semibold">Cart Details</h2>
           <div className="flex flex-col gap-4">
-            <div className="flex justify-between text-sm">
-              <p className=" text-gray-500">Subtotal</p>
-              <p className="font-medium">
-                $
-                {cart
-                  .reduce(
-                    (total, item) => total + item.price * item.quantity,
-                    0,
-                  )
-                  .toFixed(2)}
-              </p>
-            </div>
-            <div className="flex justify-between text-sm">
-              <p className=" text-gray-500">Discount(10%)</p>
-              <p className="font-medium">$ 10</p>
-            </div>
-            <div className="flex justify-between text-sm">
-              <p className=" text-gray-500">Shipping Fee</p>
-              <p className="font-medium">$ 10</p>
-            </div>
-            <hr className="border-gray-200" />
-            <div className="flex justify-between">
-              <p className=" text-gray-800 font-semibold">Total</p>
-              <p className="font-medium">
-                $
-                {cart
-                  .reduce(
-                    (total, item) => total + item.price * item.quantity,
-                    0,
-                  )
-                  .toFixed(2)}
-              </p>
-            </div>
+            {(() => {
+              const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+              const shipping = subtotal >= 100 ? 0 : 9.99;
+              const total = subtotal + shipping;
+              return (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <p className="text-gray-500">Subtotal</p>
+                    <p className="font-medium">${subtotal.toFixed(2)}</p>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <p className="text-gray-500">Shipping</p>
+                    <p className="font-medium">
+                      {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                    </p>
+                  </div>
+                  <hr className="border-gray-200" />
+                  <div className="flex justify-between">
+                    <p className="text-gray-800 font-semibold">Total</p>
+                    <p className="font-medium">${total.toFixed(2)}</p>
+                  </div>
+                </>
+              );
+            })()}
           </div>
           {activeStep === 1 && (
             <button

@@ -3,10 +3,11 @@ import Order from "../models/Order";
 import { AuthRequest } from "../middleware/auth";
 
 export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { items, shippingAddress } = req.body;
-  const totalPrice = items.reduce(
+  const { items, shippingAddress, shippingFee = 0 } = req.body;
+  const subtotal = items.reduce(
     (sum: number, item: { price: number; quantity: number }) => sum + item.price * item.quantity, 0
   );
+  const totalPrice = subtotal + Number(shippingFee);
   const order = await Order.create({ user: req.user?.id, items, totalPrice, shippingAddress });
   res.status(201).json(order);
 };

@@ -116,7 +116,11 @@ const ProductInteraction = ({
         <Plus className="w-4 h-4" />
         Add to Cart
       </button>
-      <button type="button" className="ring-1 ring-gray-400 shadow-lg text-gray-800 px-4 py-2 rounded-md flex items-center justify-center cursor-pointer gap-2 text-sm font-medium">
+      <button
+        type="button"
+        onClick={() => { handleAddToCart(); router.push("/cart"); }}
+        className="ring-1 ring-gray-400 shadow-lg text-gray-800 px-4 py-2 rounded-md flex items-center justify-center cursor-pointer gap-2 text-sm font-medium"
+      >
         <ShoppingCart className="w-4 h-4" />
         Buy this Item
       </button>

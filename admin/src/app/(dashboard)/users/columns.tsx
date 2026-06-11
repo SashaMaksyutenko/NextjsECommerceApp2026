@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, Pencil } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { UserActionsCell } from "@/components/UserActionsCell"
 
 export type User = {
@@ -82,7 +83,14 @@ export const columns: ColumnDef<User>[] = [
   {
     id: "actions",
     cell: ({ row }) => (
-      <UserActionsCell userId={row.original.id} isActive={row.original.isActive} />
+      <div className="flex items-center gap-1">
+        <Link href={`/users/${row.original.id}`}>
+          <Button variant="ghost" size="icon">
+            <Pencil className="w-4 h-4" />
+          </Button>
+        </Link>
+        <UserActionsCell userId={row.original.id} isActive={row.original.isActive} />
+      </div>
     ),
   },
 ]

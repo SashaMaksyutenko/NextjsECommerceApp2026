@@ -27,11 +27,13 @@ export const shippingFormSchema = z.object({
   email: z.string().email('Invalid email address!'),
   phone: z
     .string()
-    .min(7, 'Phone number is must be between 7 and 10 digits!')
-    .max(10, 'Phone number is must be between 7 and 10 digits!')
+    .min(7, 'Phone number must be between 7 and 10 digits!')
+    .max(10, 'Phone number must be between 7 and 10 digits!')
     .regex(/^\d+$/, 'Phone number must contain only numbers!'),
   address: z.string().min(1, 'Address is required!'),
-  city: z.string().min(1, 'City is required!')
+  city: z.string().min(1, 'City is required!'),
+  zip: z.string().min(1, 'ZIP code is required!'),
+  country: z.string().min(1, 'Country is required!'),
 })
 export const paymentFormSchema = z.object({
   cardHolder: z.string().min(1, 'Card holder is required!'),

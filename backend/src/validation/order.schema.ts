@@ -14,4 +14,5 @@ export const orderSchema = z.object({
     country: z.string().min(1),
     zip:     z.string().min(1),
   }),
+  shippingFee: z.number().min(0).optional(),
 });

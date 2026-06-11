@@ -92,7 +92,7 @@ const ShippingForm = ({
         </label>
         <input
           className="border-b border-gray-200 py-2 outline-none"
-          type="string"
+          type="text"
           id="city"
           placeholder="New York"
           {...register("city")}
@@ -100,6 +100,38 @@ const ShippingForm = ({
         {errors.city && (
           <p className="text-xs text-red-500">{errors.city.message}</p>
         )}
+      </div>
+      <div className="flex gap-4">
+        <div className="flex flex-col gap-1 flex-1">
+          <label htmlFor="zip" className="text-sm text-gray-500 font-medium">
+            ZIP Code
+          </label>
+          <input
+            className="border-b border-gray-200 py-2 outline-none"
+            type="text"
+            id="zip"
+            placeholder="10001"
+            {...register("zip")}
+          />
+          {errors.zip && (
+            <p className="text-xs text-red-500">{errors.zip.message}</p>
+          )}
+        </div>
+        <div className="flex flex-col gap-1 flex-1">
+          <label htmlFor="country" className="text-sm text-gray-500 font-medium">
+            Country
+          </label>
+          <input
+            className="border-b border-gray-200 py-2 outline-none"
+            type="text"
+            id="country"
+            placeholder="US"
+            {...register("country")}
+          />
+          {errors.country && (
+            <p className="text-xs text-red-500">{errors.country.message}</p>
+          )}
+        </div>
       </div>
       <button
         type="submit"

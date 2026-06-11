@@ -22,7 +22,9 @@ const CardList = async ({ title }: { title: string }) => {
     ? await fetchWithAuth("/products?limit=5")
     : await fetchWithAuth("/orders?limit=5")
 
-  const items = isProducts ? (data?.products ?? []) : (data?.orders ?? [])
+  const items = isProducts
+    ? (data?.products ?? [])
+    : (Array.isArray(data) ? data : (data?.orders ?? []))
 
   return (
     <div className="">

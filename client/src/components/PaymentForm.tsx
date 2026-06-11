@@ -22,6 +22,9 @@ const PaymentForm = ({ shippingForm }: { shippingForm: ShippingFormInputs }) => 
     setError("");
     setLoading(true);
 
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const shippingFee = subtotal >= 100 ? 0 : 9.99;
+
     const orderPayload = {
       items: cart.map((item) => ({
         product: item.id,
@@ -31,9 +34,10 @@ const PaymentForm = ({ shippingForm }: { shippingForm: ShippingFormInputs }) => 
       shippingAddress: {
         street: shippingForm.address,
         city: shippingForm.city,
-        country: "US",
-        zip: "00000",
+        country: shippingForm.country,
+        zip: shippingForm.zip,
       },
+      shippingFee,
     };
 
     try {
@@ -53,7 +57,7 @@ const PaymentForm = ({ shippingForm }: { shippingForm: ShippingFormInputs }) => 
       if (!res.ok) { setError(data.message || "Order failed"); return; }
 
       clearCart();
-      router.push("/");
+      router.push("/orders");
     } catch {
       setError("Something went wrong. Try again.");
     } finally {

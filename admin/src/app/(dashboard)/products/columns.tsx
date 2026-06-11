@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, Pencil } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { DeleteProductCell } from "@/components/DeleteProductCell"
 
 export type Product = {
@@ -84,6 +85,15 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <DeleteProductCell productId={row.original.id} />,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Link href={`/products/${row.original.id}`}>
+          <Button variant="ghost" size="icon">
+            <Pencil className="w-4 h-4" />
+          </Button>
+        </Link>
+        <DeleteProductCell productId={row.original.id} />
+      </div>
+    ),
   },
 ]
