@@ -1,54 +1,66 @@
 import { cookies } from "next/headers";
-import CardList from "@/components/CardList"
 import { Badge } from "@/components/ui/badge"
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  Breadcrumb, BreadcrumbItem, BreadcrumbLink,
+  BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
+  HoverCard, HoverCardContent, HoverCardTrigger,
 } from "@/components/ui/hover-card"
-import { Progress } from "@/components/ui/progress"
 import { BadgeCheck, Candy, Citrus, Shield } from "lucide-react"
 import { Sheet, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import EditUser from "@/components/EditUser"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import AppLineChart from "@/components/AppLineChart"
 
 interface UserData {
   _id: string;
   username: string;
   email: string;
-  role: string;
+  role: "user" | "admin";
   isActive: boolean;
   avatar?: string;
   createdAt: string;
 }
 
-const getUser = async (id: string): Promise<UserData | null> => {
-  try {
-    const cookieStore = await cookies();
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
-      headers: { Cookie: cookieStore.toString() },
-      cache: "no-store",
-    });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
+interface Order {
+  _id: string;
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+}
+
+const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+const fetchWithAuth = async (path: string) => {
+  const cookieStore = await cookies();
+  const res = await fetch(`${BASE}${path}`, {
+    headers: { Cookie: cookieStore.toString() },
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  return res.json();
+};
+
+const STATUS_CLASS: Record<string, string> = {
+  pending:    "bg-yellow-500/30 text-yellow-800",
+  processing: "bg-blue-500/30 text-blue-800",
+  shipped:    "bg-purple-500/30 text-purple-800",
+  delivered:  "bg-green-500/30 text-green-800",
+  cancelled:  "bg-red-500/30 text-red-800",
 };
 
 const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
-  const user = await getUser(id);
+
+  const [user, ordersData] = await Promise.all([
+    fetchWithAuth(`/users/${id}`) as Promise<UserData | null>,
+    fetchWithAuth(`/orders?userId=${id}&limit=10`),
+  ]);
+
+  const orders: Order[] = Array.isArray(ordersData)
+    ? ordersData
+    : (ordersData?.orders ?? []);
 
   const displayName = user?.username || "Unknown User";
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -60,24 +72,18 @@ const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) =
     <div className="">
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink href="/">Dashboard</BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/users">Users</BreadcrumbLink>
-          </BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink href="/users">Users</BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{displayName}</BreadcrumbPage>
-          </BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbPage>{displayName}</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      {/* CONTAINER */}
+
       <div className="mt-4 flex flex-col gap-8 xl:flex-row">
         {/* LEFT */}
         <div className="w-full space-y-6 xl:w-1/3">
-          {/* USER BADGES */}
+          {/* BADGES */}
           <div className="rounded-lg bg-primary-foreground p-4">
             <h1 className="text-xl font-semibold">User Badges</h1>
             <div className="mt-4 flex gap-4">
@@ -87,7 +93,7 @@ const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) =
                 </HoverCardTrigger>
                 <HoverCardContent>
                   <h1 className="mb-2 font-bold">Verified User</h1>
-                  <p className="text-sm text-muted-foreground">This user has been verified by the admin.</p>
+                  <p className="text-sm text-muted-foreground">This user has been verified.</p>
                 </HoverCardContent>
               </HoverCard>
               {user?.role === "admin" && (
@@ -97,7 +103,7 @@ const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) =
                   </HoverCardTrigger>
                   <HoverCardContent>
                     <h1 className="mb-2 font-bold">Admin</h1>
-                    <p className="text-sm text-muted-foreground">Admin users have access to all features.</p>
+                    <p className="text-sm text-muted-foreground">Has access to all features.</p>
                   </HoverCardContent>
                 </HoverCard>
               )}
@@ -107,7 +113,7 @@ const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) =
                 </HoverCardTrigger>
                 <HoverCardContent>
                   <h1 className="mb-2 font-bold">Awarded</h1>
-                  <p className="text-sm text-muted-foreground">This user has been awarded for their contributions.</p>
+                  <p className="text-sm text-muted-foreground">Awarded for their contributions.</p>
                 </HoverCardContent>
               </HoverCard>
               <HoverCard>
@@ -116,11 +122,12 @@ const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) =
                 </HoverCardTrigger>
                 <HoverCardContent>
                   <h1 className="mb-2 font-bold">Popular</h1>
-                  <p className="text-sm text-muted-foreground">This user has been popular in the community.</p>
+                  <p className="text-sm text-muted-foreground">Popular in the community.</p>
                 </HoverCardContent>
               </HoverCard>
             </div>
           </div>
+
           {/* USER CARD */}
           <div className="space-y-2 rounded-lg bg-primary-foreground p-4">
             <div className="flex items-center gap-2">
@@ -136,18 +143,28 @@ const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) =
               </div>
             </div>
           </div>
+
           {/* INFORMATION */}
           <div className="rounded-lg bg-primary-foreground p-4">
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-semibold">User Information</h1>
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button>Edit User</Button>
-                </SheetTrigger>
-                <EditUser />
-              </Sheet>
+              {user && (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button size="sm">Edit User</Button>
+                  </SheetTrigger>
+                  <EditUser
+                    userId={user._id}
+                    defaultValues={{
+                      username: user.username,
+                      email: user.email,
+                      role: user.role,
+                    }}
+                  />
+                </Sheet>
+              )}
             </div>
-            <div className="mt-4 space-y-4">
+            <div className="mt-4 space-y-4 text-sm">
               <div className="flex items-center gap-2">
                 <span className="font-bold">Username:</span>
                 <span>{user?.username || "—"}</span>
@@ -164,11 +181,30 @@ const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) =
             <p className="mt-4 text-sm text-muted-foreground">Joined on {joinedDate}</p>
           </div>
         </div>
+
         {/* RIGHT */}
         <div className="w-full space-y-6 xl:w-2/3">
           <div className="rounded-lg bg-primary-foreground p-4">
-            <h1 className="text-xl font-semibold">User Activity</h1>
-            <AppLineChart />
+            <h1 className="text-xl font-semibold mb-4">Recent Orders</h1>
+            {orders.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No orders yet.</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {orders.map((order) => (
+                  <div key={order._id} className="flex items-center justify-between border-b pb-2 text-sm">
+                    <span className="text-muted-foreground">
+                      {new Date(order.createdAt).toLocaleDateString("en-US")}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs capitalize ${STATUS_CLASS[order.status] ?? "bg-gray-100"}`}
+                    >
+                      {order.status}
+                    </span>
+                    <span className="font-medium">${order.totalPrice.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

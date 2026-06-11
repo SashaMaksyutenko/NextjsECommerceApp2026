@@ -18,11 +18,15 @@ export const getMyOrders = async (req: AuthRequest, res: Response): Promise<void
   res.json(orders);
 };
 
-export const getAllOrders = async (_req: Request, res: Response): Promise<void> => {
-  const orders = await Order.find()
+export const getAllOrders = async (req: Request, res: Response): Promise<void> => {
+  const { userId, limit } = req.query;
+  const filter: Record<string, unknown> = {};
+  if (userId) filter.user = String(userId);
+  const orders = await Order.find(filter)
     .populate("user", "username email")
     .populate("items.product", "name price")
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .limit(limit ? +limit : 0);
   res.json(orders);
 };
 
