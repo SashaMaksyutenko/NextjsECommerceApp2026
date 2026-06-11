@@ -4,7 +4,7 @@ import AppAreaChart from "@/components/AppAreaChart";
 import AppBarChart from "@/components/AppBarChart";
 import AppPieChart from "@/components/AppPieChart";
 import CardList from "@/components/CardList";
-import TodoList from "@/components/TodoList";
+import RecentActivity from "@/components/RecentActivity";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 
@@ -57,7 +57,7 @@ export default async function HomePage() {
         </div>
         <div className="bg-primary-foreground p-4 rounded-lg"><CardList title="Latest Transactions"/></div>
         <div className="bg-primary-foreground p-4 rounded-lg"><AppPieChart data={analytics?.ordersByStatus} /></div>
-        <div className="bg-primary-foreground p-4 rounded-lg"><TodoList/></div>
+        <div className="bg-primary-foreground p-4 rounded-lg"><RecentActivity /></div>
         <div className="bg-primary-foreground p-4 rounded-lg lg:col-span-2 xl:col-span-1 2xl:col-span-2"><AppAreaChart data={analytics?.monthlyRevenue} /></div>
         <div className="bg-primary-foreground p-4 rounded-lg"><CardList title="Popular Products"/></div>
       </div>
