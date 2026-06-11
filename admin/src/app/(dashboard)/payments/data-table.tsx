@@ -20,7 +20,10 @@ import {
 } from "@/components/ui/table"
 import { DataTablePagination } from "@/components/TablePagination"
 import { useState } from "react"
-import { Trash2 } from "lucide-react"
+import { XCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
+
+const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -31,8 +34,10 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([])
   const [rowSelection, setRowSelection] = useState({})
+  const [loading, setLoading] = useState(false)
 
   const table = useReactTable({
     data,
@@ -52,9 +57,33 @@ export function DataTable<TData, TValue>({
     <div className="rounded-md border">
       {Object.keys(rowSelection).length > 0 && (
         <div className="flex justify-end">
-          <button className="flex items-center gap-2 bg-red-500 text-white px-2 py-1 text-sm rounded-md m-4 cursor-pointer">
-            <Trash2 className="w-4 h-4"/>
-            Delete Payment(s)
+          <button
+            type="button"
+            disabled={loading}
+            onClick={async () => {
+              if (!confirm("Cancel selected orders?")) return
+              setLoading(true)
+              const ids = table.getSelectedRowModel().rows.map(
+                (r) => (r.original as { id: string }).id
+              )
+              await Promise.all(
+                ids.map((id) =>
+                  fetch(`${BASE}/orders/${id}/status`, {
+                    method: "PUT",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: "cancelled" }),
+                  })
+                )
+              )
+              setRowSelection({})
+              setLoading(false)
+              router.refresh()
+            }}
+            className="flex items-center gap-2 bg-red-500 text-white px-2 py-1 text-sm rounded-md m-4 cursor-pointer disabled:opacity-50"
+          >
+            <XCircle className="w-4 h-4"/>
+            Cancel Order(s)
           </button>
         </div>
       )}
