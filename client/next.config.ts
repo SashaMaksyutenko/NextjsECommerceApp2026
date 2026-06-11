@@ -1,7 +1,12 @@
-// If 'next' types aren't installed in the environment, fall back to a minimal local type
-// to avoid the "Cannot find module 'next'" TypeScript error.
-type NextConfig = Record<string, unknown>;
+import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "images.pexels.com" },
+    ],
+  },
+};
 
 export default nextConfig;

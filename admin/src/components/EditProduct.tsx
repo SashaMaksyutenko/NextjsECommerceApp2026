@@ -69,7 +69,7 @@ type Category = { _id: string; name: string };
 
 interface Props {
   productId: string;
-  defaultValues: Omit<FormValues, ""> & { images?: string[] };
+  defaultValues: FormValues & { images?: string[] };
 }
 
 const EditProduct = ({ productId, defaultValues }: Props) => {

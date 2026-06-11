@@ -9,6 +9,19 @@ export default function LoginPage() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
+
+  const handleForgotPassword = async () => {
+    if (!form.email) { setError("Enter your email first"); return; }
+    setError("");
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: form.email }),
+    });
+    if (res.ok) setForgotSent(true);
+    else { const d = await res.json(); setError(d.message || "Failed to send email"); }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +104,22 @@ export default function LoginPage() {
               required
             />
           </div>
+
+          {tab === "login" && (
+            <div className="flex justify-end">
+              {forgotSent ? (
+                <p className="text-xs text-green-600">Reset link sent to your email.</p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-xs text-gray-400 underline hover:text-gray-600"
+                >
+                  Forgot password?
+                </button>
+              )}
+            </div>
+          )}
 
           {error && <p className="text-xs text-red-500">{error}</p>}
 

@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 
 const generateAccessToken = (id: string, role: string) =>
-  jwt.sign({ id, role }, process.env.JWT_SECRET as string, { expiresIn: "15m" });
+  jwt.sign({ id, role }, process.env.JWT_SECRET as string, { expiresIn: "1d" });
 
 const generateRefreshToken = (id: string) =>
   jwt.sign({ id }, process.env.JWT_REFRESH_SECRET as string, { expiresIn: "7d" });
@@ -12,7 +12,7 @@ const accessCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "strict" as const,
-  maxAge: 15 * 60 * 1000,
+  maxAge: 24 * 60 * 60 * 1000,
 };
 
 const refreshCookieOptions = {
