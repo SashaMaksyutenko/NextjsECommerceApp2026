@@ -14,7 +14,8 @@ const shippingAddressSchema = z.object({
 });
 
 export const paymentIntentSchema = z.object({
-  items:           z.array(orderItemSchema).min(1),
-  shippingAddress: shippingAddressSchema,
-  shippingFee:     z.number().min(0).optional(),
+  items:       z.array(orderItemSchema).min(1),
+  shippingFee: z.number().min(0).optional(),
 });
+
+export { shippingAddressSchema };

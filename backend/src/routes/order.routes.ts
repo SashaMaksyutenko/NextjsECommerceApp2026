@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createOrder, getMyOrders, getAllOrders, getOrderById, updateOrderStatus, cancelOrder } from "../controllers/order.controller";
+import { createOrder, confirmOrder, getMyOrders, getAllOrders, getOrderById, updateOrderStatus, cancelOrder } from "../controllers/order.controller";
 import { protect, adminOnly } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { orderSchema } from "../validation/order.schema";
@@ -7,6 +7,7 @@ import { orderSchema } from "../validation/order.schema";
 const router = Router();
 
 router.post("/", protect, validate(orderSchema), createOrder);
+router.post("/confirm", protect, confirmOrder);
 router.get("/my", protect, getMyOrders);
 router.get("/", protect, adminOnly, getAllOrders);
 router.get("/:id", protect, adminOnly, getOrderById);

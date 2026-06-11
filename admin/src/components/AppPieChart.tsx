@@ -9,19 +9,11 @@ import {
 } from "./ui/chart"
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "var(--chart-1)",
-  processing: "var(--chart-2)",
-  shipped: "var(--chart-3)",
-  delivered: "var(--chart-4)",
-  cancelled: "var(--chart-5)",
-}
-
-const STATUS_DOT_CLASS: Record<string, string> = {
-  pending: "bg-yellow-400",
-  processing: "bg-blue-400",
-  shipped: "bg-purple-400",
-  delivered: "bg-green-400",
-  cancelled: "bg-red-400",
+  pending:    "#facc15",
+  processing: "#60a5fa",
+  shipped:    "#a78bfa",
+  delivered:  "#4ade80",
+  cancelled:  "#f87171",
 }
 
 type OrderStatus = { status: string; count: number }
@@ -30,7 +22,7 @@ const AppPieChart = ({ data }: { data?: OrderStatus[] }) => {
   const chartData = (data && data.length > 0 ? data : []).map((d) => ({
     status: d.status,
     count: d.count,
-    fill: STATUS_COLORS[d.status] || "var(--chart-1)",
+    fill: STATUS_COLORS[d.status] || "#9ca3af",
   }))
 
   const chartConfig: ChartConfig = {
@@ -99,7 +91,7 @@ const AppPieChart = ({ data }: { data?: OrderStatus[] }) => {
       <div className="mt-4 flex flex-col gap-2 items-center">
         {chartData.map((d) => (
           <div key={d.status} className="flex items-center gap-2 text-sm">
-            <span className={`w-3 h-3 rounded-full ${STATUS_DOT_CLASS[d.status] ?? "bg-gray-400"}`} />
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: STATUS_COLORS[d.status] ?? "#9ca3af" }} />
             <span className="capitalize">{d.status}</span>
             <span className="text-muted-foreground">({d.count})</span>
           </div>
