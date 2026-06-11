@@ -2,6 +2,7 @@ import ProductInteraction from "@/components/ProductInteraction";
 import { ProductType } from "@/types";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 const getProduct = async (id: string): Promise<ProductType | null> => {
   try {
@@ -72,11 +73,13 @@ const ProductPage = async ({
         <h1 className="text-2xl font-medium">{product.name}</h1>
         <p className="text-gray-500">{product.description}</p>
         <h2 className="text-2xl font-semibold">${product.price.toFixed(2)}</h2>
-        <ProductInteraction
-          product={product}
-          selectedSize={selectedSize}
-          selectedColor={selectedColor}
-        />
+        <Suspense>
+          <ProductInteraction
+            product={product}
+            selectedSize={selectedSize}
+            selectedColor={selectedColor}
+          />
+        </Suspense>
         <div className="flex items-center gap-2 mt-4">
           <Image src="/klarna.png" alt="klarna" width={50} height={25} className="rounded-md" />
           <Image src="/cards.png" alt="cards" width={50} height={25} className="rounded-md" />

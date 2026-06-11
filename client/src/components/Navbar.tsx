@@ -4,6 +4,7 @@ import SearchBar from "./SearchBar";
 import { Bell, Home } from "lucide-react";
 import ShoppingCartIcon from "./ShoppingCartIcon";
 import AuthButton from "./AuthButton";
+import { Suspense } from "react";
 
 const Navbar = () => {
   return (
@@ -21,7 +22,9 @@ const Navbar = () => {
         </p>
       </Link>
       <div className="flex items-center gap-6">
-        <SearchBar />
+        <Suspense>
+          <SearchBar />
+        </Suspense>
         <Link href={"/"}>
           <Home className="w-4 h-4 text-gray-600" />
         </Link>

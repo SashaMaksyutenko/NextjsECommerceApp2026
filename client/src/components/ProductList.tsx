@@ -3,6 +3,7 @@ import Categories from "./Categories";
 import ProductCard from "./ProductCard";
 import Link from "next/link";
 import Filter from "./Filter";
+import { Suspense } from "react";
 
 const mapProduct = (p: {
   _id: string;
@@ -71,8 +72,8 @@ const ProductList = async ({
 
   return (
     <div className="w-full">
-      <Categories />
-      {params === "products" && <Filter />}
+      <Suspense><Categories /></Suspense>
+      {params === "products" && <Suspense><Filter /></Suspense>}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-12">
         {products.length > 0 ? (
           products.map((product) => (
