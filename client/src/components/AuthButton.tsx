@@ -62,7 +62,6 @@ export default function AuthButton() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-1.5 group"
-        aria-expanded={open}
       >
         <div className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs font-bold select-none">
           {initials}
