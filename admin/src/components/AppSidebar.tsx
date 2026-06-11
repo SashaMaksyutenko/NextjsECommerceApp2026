@@ -12,6 +12,7 @@ import {
   Shirt,
   User,
   ShoppingBasket,
+  LogOut,
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,7 +27,6 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-
   SidebarSeparator,
 } from "./ui/sidebar";
 import Link from "next/link";
@@ -38,40 +38,31 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Sheet, SheetTrigger } from "./ui/sheet";
-import AddOrder from "./AddOrder";
 import AddUser from "./AddUser";
 import AddCategory from "./AddCategory";
 import AddProduct from "./AddProduct";
+import { useRouter } from "next/navigation";
 
 const items = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
+  { title: "Home",     url: "/",  icon: Home },
+  { title: "Inbox",    url: "#",  icon: Inbox },
+  { title: "Calendar", url: "#",  icon: Calendar },
+  { title: "Search",   url: "#",  icon: Search },
+  { title: "Settings", url: "#",  icon: Settings },
 ];
 
-const AppSidebar = () => {
+const AppSidebar = ({ username }: { username?: string }) => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    router.push("/login");
+    router.refresh();
+  };
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="py-4">
@@ -108,6 +99,7 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>Products</SidebarGroupLabel>
           <SidebarGroupAction>
@@ -128,10 +120,7 @@ const AppSidebar = () => {
                   <Sheet>
                     <SheetTrigger asChild>
                       <SidebarMenuButton asChild>
-                        <Link href="#">
-                          <Plus />
-                          Add Product
-                        </Link>
+                        <Link href="#"><Plus />Add Product</Link>
                       </SidebarMenuButton>
                     </SheetTrigger>
                     <AddProduct />
@@ -143,10 +132,7 @@ const AppSidebar = () => {
                   <Sheet>
                     <SheetTrigger asChild>
                       <SidebarMenuButton asChild>
-                        <Link href="#">
-                          <Plus />
-                          Add Category
-                        </Link>
+                        <Link href="#"><Plus />Add Category</Link>
                       </SidebarMenuButton>
                     </SheetTrigger>
                     <AddCategory />
@@ -156,6 +142,7 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>Users</SidebarGroupLabel>
           <SidebarGroupAction>
@@ -176,10 +163,7 @@ const AppSidebar = () => {
                   <Sheet>
                     <SheetTrigger asChild>
                       <SidebarMenuButton asChild>
-                        <Link href="#">
-                          <Plus />
-                          Add User
-                        </Link>
+                        <Link href="#"><Plus />Add User</Link>
                       </SidebarMenuButton>
                     </SheetTrigger>
                     <AddUser />
@@ -189,53 +173,44 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>Orders / Payments</SidebarGroupLabel>
-          <SidebarGroupAction>
-            <Plus /> <span className="sr-only">Add Order</span>
-          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href="/users">
+                  <Link href="/payments">
                     <ShoppingBasket />
-                    See All Transactions
+                    See All Orders
                   </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <SidebarMenuButton asChild>
-                        <Link href="#">
-                          <Plus />
-                          Add Order
-                        </Link>
-                      </SidebarMenuButton>
-                    </SheetTrigger>
-                    <AddOrder />
-                  </Sheet>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> John Doe <ChevronUp className="ml-auto" />
+                  <User2 />
+                  {username || "Admin"}
+                  <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Account</DropdownMenuItem>
-                <DropdownMenuItem>Setting</DropdownMenuItem>
-                <DropdownMenuItem>Sign out</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/users" className="flex items-center gap-2 w-full">
+                    <User2 className="h-4 w-4" /> Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+                  <LogOut className="h-4 w-4 mr-2" /> Sign out
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
