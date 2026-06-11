@@ -31,11 +31,6 @@ const limiter = rateLimit({
   message: { message: "Too many requests, please try again later" },
 });
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: { message: "Too many login attempts, please try again later" },
-});
 
 app.use(cors({
   origin: true,
@@ -50,7 +45,7 @@ app.get("/", (_req, res) => {
   res.json({ message: "API is running" });
 });
 
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);

@@ -1,10 +1,7 @@
 import { cookies } from "next/headers";
 import DeleteCategoryCell from "@/components/DeleteCategoryCell";
 import EditCategoryCell from "@/components/EditCategoryCell";
-import { Sheet, SheetTrigger } from "@/components/ui/sheet";
-import AddCategory from "@/components/AddCategory";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import AddCategorySheet from "@/components/AddCategorySheet";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -36,14 +33,7 @@ export default async function CategoriesPage() {
     <div>
       <div className="mb-8 px-4 py-2 bg-secondary rounded-md flex items-center justify-between">
         <h1 className="font-semibold">All Categories</h1>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button size="sm" className="flex items-center gap-1">
-              <Plus className="w-4 h-4" /> Add Category
-            </Button>
-          </SheetTrigger>
-          <AddCategory />
-        </Sheet>
+        <AddCategorySheet />
       </div>
 
       <div className="rounded-md border overflow-hidden">

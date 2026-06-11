@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { ChevronDown, LayoutDashboard, LogOut, ShoppingBag } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, ShoppingBag, UserRound } from "lucide-react";
 
 type UserData = { id: string; username: string; email: string; role: string };
 
@@ -62,7 +62,7 @@ export default function AuthButton() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-1.5 group"
-        aria-expanded={open ? "true" : "false"}
+        aria-expanded={open}
       >
         <div className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs font-bold select-none">
           {initials}
@@ -88,6 +88,14 @@ export default function AuthButton() {
           {/* items */}
           <div className="py-1.5">
             <Link
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            >
+              <UserRound className="w-4 h-4 shrink-0" />
+              My Profile
+            </Link>
+            <Link
               href="/orders"
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
@@ -99,13 +107,11 @@ export default function AuthButton() {
             {user.role === "admin" && (
               <a
                 href="http://localhost:3000"
-                target="_blank"
-                rel="noopener noreferrer"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors font-medium"
               >
                 <LayoutDashboard className="w-4 h-4 shrink-0" />
-                Admin Dashboard ↗
+                Admin Dashboard
               </a>
             )}
 

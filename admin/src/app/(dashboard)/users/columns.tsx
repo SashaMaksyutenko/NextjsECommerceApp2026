@@ -14,6 +14,7 @@ export type User = {
   avatar: string
   fullName: string
   email: string
+  role: string
   isActive: boolean
 }
 
@@ -64,6 +65,18 @@ export const columns: ColumnDef<User>[] = [
         Email
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
+    ),
+  },
+  {
+    accessorKey: "role",
+    header: "Role",
+    cell: ({ row }) => (
+      <div className={cn(
+        "w-max rounded-md px-2 py-1 text-xs font-medium",
+        row.getValue("role") === "admin" ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-600"
+      )}>
+        {row.getValue("role")}
+      </div>
     ),
   },
   {

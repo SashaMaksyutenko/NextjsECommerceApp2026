@@ -125,3 +125,21 @@ export const getMe = async (req: Request & { user?: { id: string } }, res: Respo
   }
   res.json(user);
 };
+
+export const changePassword = async (req: Request & { user?: { id: string } }, res: Response): Promise<void> => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword || newPassword.length < 6) {
+    res.status(400).json({ message: "New password must be at least 6 characters" });
+    return;
+  }
+  const user = await User.findById(req.user?.id);
+  if (!user) { res.status(404).json({ message: "User not found" }); return; }
+  if (!(await user.comparePassword(currentPassword))) {
+    res.status(400).json({ message: "Current password is incorrect" });
+    return;
+  }
+  user.password = newPassword;
+  await user.save();
+  res.json({ message: "Password changed successfully" });
+};
+

@@ -8,9 +8,7 @@ import {
   HoverCard, HoverCardContent, HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { BadgeCheck, Candy, Citrus, Shield } from "lucide-react"
-import { Sheet, SheetTrigger } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import EditUser from "@/components/EditUser"
+import EditUserSheet from "@/components/EditUserSheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface UserData {
@@ -149,19 +147,10 @@ const SingleUserPage = async ({ params }: { params: Promise<{ id: string }> }) =
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-semibold">User Information</h1>
               {user && (
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button size="sm">Edit User</Button>
-                  </SheetTrigger>
-                  <EditUser
-                    userId={user._id}
-                    defaultValues={{
-                      username: user.username,
-                      email: user.email,
-                      role: user.role,
-                    }}
-                  />
-                </Sheet>
+                <EditUserSheet
+                  userId={user._id}
+                  defaultValues={{ username: user.username, email: user.email, role: user.role }}
+                />
               )}
             </div>
             <div className="mt-4 space-y-4 text-sm">

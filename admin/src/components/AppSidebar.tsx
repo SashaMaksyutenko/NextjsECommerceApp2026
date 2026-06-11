@@ -36,9 +36,7 @@ import AddUser from "./AddUser";
 import AddProduct from "./AddProduct";
 import { useRouter } from "next/navigation";
 
-const items = [
-  { title: "Home", url: "/", icon: Home },
-];
+const STORE_URL = "http://localhost:3001";
 
 const AppSidebar = ({ username }: { username?: string }) => {
   const router = useRouter();
@@ -72,16 +70,14 @@ const AppSidebar = ({ username }: { username?: string }) => {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a href={STORE_URL}>
+                    <Home />
+                    <span>Store</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

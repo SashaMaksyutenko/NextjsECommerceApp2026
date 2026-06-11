@@ -18,6 +18,7 @@ const getUsers = async (): Promise<User[]> => {
       _id: string;
       username: string;
       email: string;
+      role: string;
       isActive: boolean;
       avatar?: string;
     }) => ({
@@ -25,6 +26,7 @@ const getUsers = async (): Promise<User[]> => {
       avatar: u.avatar || "",
       fullName: u.username,
       email: u.email,
+      role: u.role,
       isActive: u.isActive,
     }));
   } catch {

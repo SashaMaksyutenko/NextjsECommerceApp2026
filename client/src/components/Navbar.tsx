@@ -4,6 +4,7 @@ import SearchBar from "./SearchBar";
 import { Home } from "lucide-react";
 import ShoppingCartIcon from "./ShoppingCartIcon";
 import AuthButton from "./AuthButton";
+import ThemeToggle from "./ThemeToggle";
 import { Suspense } from "react";
 
 const Navbar = () => {
@@ -28,6 +29,7 @@ const Navbar = () => {
         <Link href={"/"}>
           <Home className="w-4 h-4 text-gray-600" />
         </Link>
+        <ThemeToggle />
         <ShoppingCartIcon />
         <AuthButton />
       </div>
