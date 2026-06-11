@@ -3,6 +3,7 @@
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -16,9 +17,19 @@ import { Button } from "./ui/button";
 import { useTheme } from "next-themes";
 import { SidebarTrigger } from "./ui/sidebar";
 
+type Me = { username: string; avatar?: string };
+
 const Navbar = () => {
   const { setTheme } = useTheme();
   const router = useRouter();
+  const [me, setMe] = useState<Me | null>(null);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, { credentials: "include" })
+      .then((r) => r.ok ? r.json() : null)
+      .then(setMe)
+      .catch(() => {});
+  }, []);
 
   const handleLogout = async () => {
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
@@ -28,6 +39,8 @@ const Navbar = () => {
     router.push("/login");
     router.refresh();
   };
+
+  const initials = me?.username?.slice(0, 2).toUpperCase() ?? "AD";
 
   return (
     <nav className="p-4 flex items-center justify-between sticky top-0 bg-background z-10 w-full">
@@ -51,12 +64,12 @@ const Navbar = () => {
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar>
-              <AvatarImage src="https://avatars.githubusercontent.com/u/1486366" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarImage src={me?.avatar} />
+              <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent sideOffset={10}>
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>{me?.username ?? "My Account"}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <User className="h-[1.2rem] w-[1.2rem] mr-2" />
