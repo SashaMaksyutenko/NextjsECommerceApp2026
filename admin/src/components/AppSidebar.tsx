@@ -2,10 +2,6 @@
 
 import {
   Home,
-  Inbox,
-  Calendar,
-  Search,
-  Settings,
   User2,
   ChevronUp,
   Plus,
@@ -23,7 +19,6 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
@@ -42,11 +37,7 @@ import AddProduct from "./AddProduct";
 import { useRouter } from "next/navigation";
 
 const items = [
-  { title: "Home",     url: "/",  icon: Home },
-  { title: "Inbox",    url: "#",  icon: Inbox },
-  { title: "Calendar", url: "#",  icon: Calendar },
-  { title: "Search",   url: "#",  icon: Search },
-  { title: "Settings", url: "#",  icon: Settings },
+  { title: "Home", url: "/", icon: Home },
 ];
 
 const AppSidebar = ({ username }: { username?: string }) => {
@@ -89,9 +80,6 @@ const AppSidebar = ({ username }: { username?: string }) => {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
-                  {item.title === "Inbox" && (
-                    <SidebarMenuBadge>24</SidebarMenuBadge>
-                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
