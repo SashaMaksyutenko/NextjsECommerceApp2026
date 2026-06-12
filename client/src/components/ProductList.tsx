@@ -12,11 +12,12 @@ const mapProduct = (p: {
   name: string;
   description: string;
   price: number;
+  salePrice?: number;
   stock: number;
   images?: string[];
   sizes?: string[];
   colors?: string[];
-  category?: { name: string } | string;
+  category?: { name: string; slug: string } | string;
   isActive: boolean;
 }): ProductType => {
   const colors = p.colors || [];
@@ -32,6 +33,7 @@ const mapProduct = (p: {
     shortDescription: p.description.length > 80 ? p.description.slice(0, 80) + "…" : p.description,
     description: p.description,
     price: p.price,
+    salePrice: p.salePrice,
     stock: p.stock,
     sizes: p.sizes || [],
     colors,
@@ -40,6 +42,10 @@ const mapProduct = (p: {
       typeof p.category === "object" && p.category !== null
         ? p.category.name
         : (p.category ?? ""),
+    categorySlug:
+      typeof p.category === "object" && p.category !== null
+        ? p.category.slug
+        : undefined,
     isActive: p.isActive,
   };
 };

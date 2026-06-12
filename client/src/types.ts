@@ -5,11 +5,13 @@ export type ProductType = {
   shortDescription: string
   description: string
   price: number
+  salePrice?: number
   sizes: string[]
   colors: string[]
   images: Record<string, string>
   stock?: number
   category?: string
+  categorySlug?: string
   isActive?: boolean
 }
 export type ProductsType = ProductType[]

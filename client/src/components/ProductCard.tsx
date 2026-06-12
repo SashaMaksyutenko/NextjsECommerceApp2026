@@ -57,6 +57,11 @@ const ProductCard = ({ product }: { product: ProductType }) => {
             className="object-cover hover:scale-105 transition-all duration-300"
           />
         </Link>
+        {product.salePrice && (
+          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded">
+            Sale
+          </span>
+        )}
         <WishlistButton productId={String(product.id)} />
       </div>
 
@@ -106,7 +111,14 @@ const ProductCard = ({ product }: { product: ProductType }) => {
 
         {/* PRICE + CART */}
         <div className="flex items-center justify-between">
-          <p className="font-medium">${product.price.toFixed(2)}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-medium">
+              ${(product.salePrice ?? product.price).toFixed(2)}
+            </p>
+            {product.salePrice && (
+              <p className="text-sm text-gray-400 line-through">${product.price.toFixed(2)}</p>
+            )}
+          </div>
           <button
             type="button"
             onClick={handleAddToCart}

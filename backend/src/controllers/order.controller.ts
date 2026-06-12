@@ -4,7 +4,7 @@ import Order from "../models/Order";
 import Product from "../models/Product";
 import User from "../models/User";
 import { AuthRequest } from "../middleware/auth";
-import { sendOrderConfirmationEmail } from "../lib/email";
+import { sendOrderConfirmationEmail, sendOrderStatusEmail } from "../lib/email";
 
 let stripeInstance: InstanceType<typeof Stripe> | null = null;
 const getStripe = () => {
@@ -112,8 +112,16 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
     req.params.id,
     { status: req.body.status },
     { new: true }
-  );
+  ).populate("user", "email");
   if (!order) { res.status(404).json({ message: "Order not found" }); return; }
+
+  (async () => {
+    try {
+      const userEmail = (order.user as unknown as { email?: string })?.email;
+      if (userEmail) await sendOrderStatusEmail(userEmail, String(order._id), req.body.status);
+    } catch {}
+  })();
+
   res.json(order);
 };
 

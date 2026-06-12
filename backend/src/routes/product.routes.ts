@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProducts, getProduct, createProduct, updateProduct, deleteProduct } from "../controllers/product.controller";
+import { getProducts, getProduct, createProduct, updateProduct, deleteProduct, getSimilarProducts } from "../controllers/product.controller";
 import { getReviews, addReview, deleteReview } from "../controllers/review.controller";
 import { protect, adminOnly } from "../middleware/auth";
 import { validate } from "../middleware/validate";
@@ -9,6 +9,7 @@ const router = Router();
 
 router.get("/", getProducts);
 router.get("/admin", protect, adminOnly, (req, res) => { req.query.admin = "true"; getProducts(req, res); });
+router.get("/:id/similar", getSimilarProducts);
 router.get("/:id", getProduct);
 router.post("/", protect, adminOnly, validate(productSchema), createProduct);
 router.put("/:id", protect, adminOnly, validate(productSchema.partial()), updateProduct);

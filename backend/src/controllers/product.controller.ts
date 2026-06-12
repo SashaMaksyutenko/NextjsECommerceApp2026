@@ -52,3 +52,16 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
   await Product.findByIdAndDelete(req.params.id);
   res.json({ message: "Product deleted" });
 };
+
+export const getSimilarProducts = async (req: Request, res: Response): Promise<void> => {
+  const product = await Product.findById(req.params.id);
+  if (!product) { res.status(404).json({ message: "Product not found" }); return; }
+  const similar = await Product.find({
+    category: product.category,
+    _id: { $ne: product._id },
+    isActive: true,
+  })
+    .populate("category", "name slug")
+    .limit(4);
+  res.json(similar);
+};

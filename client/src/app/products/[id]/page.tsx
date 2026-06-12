@@ -1,5 +1,6 @@
 import ProductInteraction from "@/components/ProductInteraction";
 import ReviewSection from "@/components/ReviewSection";
+import RelatedProducts from "@/components/RelatedProducts";
 import { ProductType } from "@/types";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -26,10 +27,12 @@ const getProduct = async (id: string): Promise<ProductType | null> => {
       shortDescription: p.description.length > 80 ? p.description.slice(0, 80) + "…" : p.description,
       description: p.description,
       price: p.price,
+      salePrice: p.salePrice,
       stock: p.stock,
       sizes: p.sizes || [],
       colors,
       images: imageMap,
+      categorySlug: p.category?.slug,
     };
   } catch {
     return null;
@@ -74,7 +77,17 @@ const ProductPage = async ({
       <div className="w-full lg:w-7/12 flex flex-col gap-4">
         <h1 className="text-2xl font-medium">{product.name}</h1>
         <p className="text-gray-500">{product.description}</p>
-        <h2 className="text-2xl font-semibold">${product.price.toFixed(2)}</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-semibold">
+            ${(product.salePrice ?? product.price).toFixed(2)}
+          </h2>
+          {product.salePrice && (
+            <span className="text-lg text-gray-400 line-through">${product.price.toFixed(2)}</span>
+          )}
+          {product.salePrice && (
+            <span className="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded">Sale</span>
+          )}
+        </div>
         <Suspense>
           <ProductInteraction
             product={product}
@@ -98,6 +111,7 @@ const ProductPage = async ({
       </div>
     </div>
     <ReviewSection productId={id} />
+    <RelatedProducts productId={id} />
     </>
   );
 };

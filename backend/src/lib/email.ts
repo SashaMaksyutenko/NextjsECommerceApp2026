@@ -58,6 +58,29 @@ export const sendOrderConfirmationEmail = async (
   });
 };
 
+export const sendOrderStatusEmail = async (to: string, orderId: string, status: string) => {
+  const statusLabels: Record<string, string> = {
+    processing: "Your order is being processed",
+    shipped:    "Your order has been shipped",
+    delivered:  "Your order has been delivered",
+    cancelled:  "Your order has been cancelled",
+  };
+  const label = statusLabels[status] ?? `Order status updated to: ${status}`;
+
+  await transporter.sendMail({
+    from: `"ECommerce 2026" <${process.env.SMTP_USER}>`,
+    to,
+    subject: `Order #${orderId.slice(-6).toUpperCase()} — ${label}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+        <h2 style="color:#111">${label}</h2>
+        <p style="color:#6b7280">Order <strong>#${orderId.slice(-6).toUpperCase()}</strong></p>
+        <p style="color:#9ca3af;font-size:12px">Thanks for shopping with us!</p>
+      </div>
+    `,
+  });
+};
+
 export const sendPasswordResetEmail = async (to: string, resetUrl: string) => {
   await transporter.sendMail({
     from: `"ECommerce 2026" <${process.env.SMTP_USER}>`,
